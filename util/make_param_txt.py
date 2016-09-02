@@ -9,20 +9,23 @@ parser.add_argument('--input_dir',
     help="Directory containing means and variances to convert")
 parser.add_argument('--data_dir',
     help="Directory containing image data")
-parser.add_argument('--num_timesteps',
-    help="Number of timesteps to compute tight mean/covariance")
+parser.add_argument('--sequence_time_start', type=int,
+    help="Starting timestep to begin training/testing")
+parser.add_argument('--sequence_time_end', type=int,
+    help="Ending timestep of training/testing")
 parser.add_argument('--query_type',
     help="Query type")
 args = parser.parse_args()
 
 def save_img_txt():
     data = []
-    for img_path in sorted(os.listdir(args.data_dir)):
+    for img_path in sorted(os.listdir(args.data_dir), key=lambda x: int(x.split('.')[0])):
         img = skio.imread(os.path.join(args.data_dir, img_path))
         if len(img.shape) < 3:
             img = np.dstack((img, img, img))
         data.append(img)
     data = np.array(data)
+    data = data[args.sequence_time_start:args.sequence_time_end]
     t, ylen, xlen, c = data.shape
     colors = ['r', 'g', 'b']
     for channel in range(c):
@@ -34,12 +37,13 @@ def save_img_txt():
 
 def get_tight_mean_var():
     data = []
-    for img_path in sorted(os.listdir(args.data_dir)):
+    for img_path in sorted(os.listdir(args.data_dir), key=lambda x: int(x.split('.')[0])):
         img = skio.imread(os.path.join(args.data_dir, img_path)) 
         if len(img.shape) < 3:
             img = np.dstack((img, img, img))
         data.append(img)
     data = np.array(data)
+    data = data[args.sequence_time_start:args.sequence_time_end]
     t, ylen, xlen, c = data.shape
     small_mean = np.mean(data, axis=0)
     norm_data = data - small_mean
@@ -83,6 +87,8 @@ def main():
         small_mean, small_var = get_tight_mean_var()
         mean_arr.append(small_mean)
         var_arr.append(small_var)
+        save_img_txt()
+    elif args.query_type == 'read_test_data':
         save_img_txt()
     np.savetxt(os.path.join(args.input_dir, "means.txt"),
                np.vstack(mean_arr))
