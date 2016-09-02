@@ -19,8 +19,3 @@ git pull origin quantify-query-experimental:quantify-query-experimental
 git checkout quantify-query-experimental
 make compile
 cd ..
-
-# Current TCP setup with repo
-# git clone https://github.com/giulio-zhou/swift-team-challenge-problem.git 
-# mv swift swift-team-challenge-problem
-# cd swift-team-challenge-problem

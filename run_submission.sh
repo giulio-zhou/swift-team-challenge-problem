@@ -1,5 +1,6 @@
 #!/bin/bash
-# Usage: run_experiment.sh [data directory] [xlen] [ylen] [timesteps] [output timesteps] [output directory] [ground truth image directory]
+# Usage: ./run_experiment.sh [data directory] [xlen] [ylen] [training start timestep] [training end timestep] \
+#                            [test start timestep] [test end timestep] [output directory] [ground truth image directory]
 # Phase One: Perform offline inference on first n frames to get parameters
 
 # Make BLOG file, load images and means from pre-processing to Swift-readable text format
