@@ -12,4 +12,5 @@ Specifically, the instance used was an m4.2xlarge with the description
 To install the armadillo, BLOG and Python dependencies, run the setup script.
     ./setup.sh
 To run an end-to-end BLOG example, execute the run_experiment script.
-    ./run_experiment.sh [data directory] [xlen] [ylen] [timesteps] [output timesteps] [output directory]
+    ./run_experiment.sh [data directory] [xlen] [ylen] [training timestep start] [training timestep end] \
+                        [test timestep start] [test timestep end] [output directory] [ground truth image directory]
