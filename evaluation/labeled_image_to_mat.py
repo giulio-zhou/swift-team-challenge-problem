@@ -2,6 +2,8 @@ import argparse
 import numpy as np
 from scipy.misc import imread
 from scipy.io import savemat
+from skimage.transform import resize
+import skimage
 import string
 import os
 import skimage.io as skio
@@ -16,6 +18,14 @@ parser.add_argument('-o', '--output',
 parser.add_argument('-b', '--background',
 	                help="Intensity of background pixels",
 	                default=255)
+parser.add_argument('-s', '--sequence_time_start', type=int,
+    help="Starting timestep to testing")
+parser.add_argument('-e', '--sequence_time_end', type=int,
+    help="Ending timestep of testing")
+parser.add_argument('-x', type=int,
+    help="Width of input images")
+parser.add_argument('-y', type=int,
+    help="Height of input images")
 args = parser.parse_args()
 
 def simplify(x, background_color):
@@ -26,6 +36,8 @@ def simplify(x, background_color):
 def convert_image_to_mat(filepath, output_mat, index, foreground_color):
 
 	img = imread(filepath)
+	img = resize(img, (args.y, args.x))
+	img = skimage.img_as_ubyte(img)
 
 	f = np.vectorize(simplify)
 	label_mat = f(img, foreground_color)
@@ -49,8 +61,11 @@ def main():
 
 	filenames = os.listdir(args.filepath)
 	filenames = [x for x in filenames if x[0] != '.']
+	filenames = sorted(filenames, key=lambda x: int(x.split('.')[0]))
 
 	img = imread(directory+'/'+filenames[0])
+	img = resize(img, (args.y, args.x))
+	img = skimage.img_as_ubyte(img)
 
 	output_mat = np.zeros(shape=(img.shape[0], img.shape[1], len(filenames)), dtype=bool)
 
