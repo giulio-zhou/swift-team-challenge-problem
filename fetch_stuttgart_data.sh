@@ -6,3 +6,5 @@ wget http://www.vis.uni-stuttgart.de/~hoeferbn/bse/dataset/SABS-GT.rar
 unrar x SABS-Basic.rar
 unrar x SABS-GT.rar
 cd $current_dir
+python util/rename_data.py $1/SABS/Test/Basic 0 600
+python util/rename_data.py $1/SABS/GT 800 1400
