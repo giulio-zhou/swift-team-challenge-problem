@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 import os
+import skimage
 import skimage.io as skio
 from skimage.transform import resize
 
@@ -29,6 +30,7 @@ def save_img_txt():
         if len(img.shape) < 3:
             img = np.dstack((img, img, img))
         img = resize(img, (args.ylen, args.xlen))
+        img = skimage.img_as_ubyte(img)
         data.append(img)
     data = np.array(data)
     data = data[args.sequence_time_start:args.sequence_time_end]
@@ -48,6 +50,7 @@ def get_tight_mean_var():
         if len(img.shape) < 3:
             img = np.dstack((img, img, img))
         img = resize(img, (args.ylen, args.xlen))
+        img = skimage.img_as_ubyte(img)
         data.append(img)
     data = np.array(data)
     data = data[args.sequence_time_start:args.sequence_time_end]
