@@ -76,9 +76,9 @@ mv $output_dir/*.png $output_dir/blog
 
 # Phase Three: Evaluation
 python evaluation/run_opencv.py -v 1 -f $data_dir -o $output_dir/open_cv
-python evaluation/labeled_image_to_mat.py -f $ground_truth_dir -o $output_dir/gt_mat -b 0 -x $xlen -y $ylen
-python evaluation/labeled_image_to_mat.py -f $output_dir/blog -o $output_dir/blog_mat -b 0 -x $xlen -y $ylen
-python evaluation/labeled_image_to_mat.py -f $output_dir/open_cv -o $output_dir/opencv_mat -b 0 -x $xlen -y $ylen
+python evaluation/labeled_image_to_mat.py -f $ground_truth_dir -o $output_dir/gt_mat -b 0 -x $xlen -y $ylen -s $test_start_t -e $test_end_t
+python evaluation/labeled_image_to_mat.py -f $output_dir/blog -o $output_dir/blog_mat -b 0 -x $xlen -y $ylen -s $test_start_t -e $test_end_t
+python evaluation/labeled_image_to_mat.py -f $output_dir/open_cv -o $output_dir/opencv_mat -b 0 -x $xlen -y $ylen -s $test_start_t -e $test_end_t
 echo "Evaluating BLOG performance:"
 python evaluation/evaluate_mats.py -p $output_dir/blog_mat -t $output_dir/gt_mat -g True -o $output_dir/blog_f1_per_frame.png
 echo "Evaluating OpenCV performance:"

@@ -62,6 +62,7 @@ def main():
 	filenames = os.listdir(args.filepath)
 	filenames = [x for x in filenames if x[0] != '.']
 	filenames = sorted(filenames, key=lambda x: int(x.split('.')[0]))
+	filenames = filenames[args.sequence_time_start:args.sequence_time_end]
 
 	img = imread(directory+'/'+filenames[0])
 	img = resize(img, (args.y, args.x))
