@@ -51,7 +51,7 @@ def main():
     filenames = os.listdir(args.filepath)
     filenames = [x for x in filenames if x[0] != '.']
     masks = apply_background_subtractor(fgbg, filenames, args.filepath) 
-    save_images(args.output + '/output_im_{}.png', masks)
+    save_images(args.output + '/{}.png', masks)
 
 if __name__ == '__main__':
     main()

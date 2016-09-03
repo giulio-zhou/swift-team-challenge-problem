@@ -74,7 +74,7 @@ python util/parse_output_file.py --input_file bsub_output_label.txt --output_dir
 
 
 # Phase Three: Evaluation
-python evaluation/run_opencv.py -v 2 -f $data_dir -o $output_dir/open_cv
+python evaluation/run_opencv.py -v 1 -f $data_dir -o $output_dir/open_cv
 python evaluation/labeled_image_to_mat.py -f $ground_truth_dir -o $output_dir/gt_mat -b 0
 python evaluation/labeled_image_to_mat.py -f $output_dir/blog -o $output_dir/blog_mat -b 0
 python evaluation/labeled_image_to_mat.py -f $output_dir/open_cv -o $output_dir/opencv_mat -b 0
