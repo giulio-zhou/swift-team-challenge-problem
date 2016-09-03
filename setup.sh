@@ -1,7 +1,7 @@
 #!/bin/bash
 # Update and install armadillo/swift dependencies
 sudo apt-get update
-sudo apt-get install git g++ cmake libopenblas-dev liblapack-dev libarpack++2-dev
+sudo apt-get install git g++ cmake libopenblas-dev liblapack-dev libarpack++2-dev unrar
 sudo apt-get install python-numpy python-scipy python-skimage python-opencv
 # Extract, configure and install armadillo
 wget http://sourceforge.net/projects/arma/files/armadillo-7.400.2.tar.xz
