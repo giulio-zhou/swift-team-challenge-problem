@@ -62,7 +62,7 @@ def parse_mean_var_offline():
 
     for i in range(len(imgs)):
         img = imgs[i]
-        skio.imsave(os.path.join(args.output_dir, 'img%d.png' % i), img.astype(np.ubyte))
+        skio.imsave(os.path.join(args.output_dir, '%d.png' % i), img.astype(np.ubyte))
         np.save(os.path.join(args.output_dir, 'mean%d.npy' % i), img)
         np.save(os.path.join(args.output_dir, 'var%d.npy' % i), cov_mat[i])
     colors = ['r', 'g', 'b', 'y', 'm']
@@ -109,7 +109,7 @@ def parse_offline_sequence():
 
     for i in range(len(imgs)):
         img = skimage.img_as_ubyte(imgs[i])
-        skio.imsave(os.path.join(args.output_dir, 'img%d.png' % i), img)
+        skio.imsave(os.path.join(args.output_dir, '%d.png' % i), img)
 
 
 def main():
