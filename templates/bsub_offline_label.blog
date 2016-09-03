@@ -23,30 +23,41 @@ random RealMatrix Variance(Component c, ImageX x, ImageY y) ~
         if (c == Component[1]) then InvWishart(Var2, 4)
         else InvWishart(Var3, 4)
 ;
-random Component AssociatedComponent(ImageX x, ImageY y, Time t) ~ Discrete([1.0, 1.0, 1.0]);
+random Component AssociatedComponent(ImageX x, ImageY y, Time t) ~
+    if (t == Time[0]) then Discrete([1.0, 1.0, 1.0])
+    else
+        case AssociatedComponent(x, y, prevTime(t)) in {
+            Component[0] -> Discrete([0.6, 0.2, 0.2]),
+            Component[1] -> Discrete([0.2, 0.6, 0.2]),
+            Component[2] -> Discrete([0.2, 0.2, 0.6])
+        }
+;
 
 random RealMatrix Intensity(ImageX x, ImageY y, Time t) ~
     MultivarGaussian(Mean(AssociatedComponent(x, y, t), x, y),
                      Variance(AssociatedComponent(x, y, t), x, y));
 
-/* Spatial and temporal contiguity */
+/* Spatial contiguity */
 random Boolean NeighborRight(ImageX x, ImageY y, Time t) ~
-    if (AssociatedComponent(x, y, t) == AssociatedComponent(nextX(x), y, t)) then BooleanDistrib(0.99)
-    else BooleanDistrib(0.01)
+    if (AssociatedComponent(x, y, t) == Component[2]) then
+        if (AssociatedComponent(nextX(x), y, t) == Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.01)
+    else
+        if (AssociatedComponent(nextX(x), y, t) != Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.01)
 ;
 
 random Boolean NeighborDown(ImageX x, ImageY y, Time t) ~
-    if (AssociatedComponent(x, y, t) == AssociatedComponent(x, nextY(y), t)) then BooleanDistrib(0.99)
-    else BooleanDistrib(0.01)
+    if (AssociatedComponent(x, y, t) == Component[2]) then
+        if (AssociatedComponent(x, nextY(y), t) == Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.01)
+    else
+        if (AssociatedComponent(x, nextY(y), t) != Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.01)
 ;
 
 fixed ImageX nextX(ImageX x) = toInt(x) + 1;
 fixed ImageY nextY(ImageY y) = toInt(y) + 1;
-
-random Boolean TemporalContiguity(ImageX x, ImageY y, Time t) ~
-    if (AssociatedComponent(x, y, t) == AssociatedComponent(x, y, prevTime(t))) then BooleanDistrib(0.9)
-    else BooleanDistrib(0.01)
-;
 
 fixed Time prevTime(Time t) =
     if (t == Time[0]) then toInt(t)
@@ -60,7 +71,6 @@ obs Variance(c, x, y) = [vars[toInt(c)][xdim * 9 * toInt(y) + 9 * toInt(x) + 0],
                          vars[toInt(c)][xdim * 9 * toInt(y) + 9 * toInt(x) + 4], vars[toInt(c)][xdim * 9 * toInt(y) + 9 * toInt(x) + 5];
                          vars[toInt(c)][xdim * 9 * toInt(y) + 9 * toInt(x) + 6], vars[toInt(c)][xdim * 9 * toInt(y) + 9 * toInt(x) + 7],
                          vars[toInt(c)][xdim * 9 * toInt(y) + 9 * toInt(x) + 8]] for Component c, ImageX x, ImageY y;
-obs TemporalContiguity(x, y, t) = true for ImageX x, ImageY y, Time t;
 obs NeighborRight(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(x) < xdim - 1;
 obs NeighborDown(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(y) < ydim - 1;
 query AssociatedComponent(x, y, t) for ImageX x, ImageY y, Time t;
