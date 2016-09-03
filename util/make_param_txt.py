@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import os
 import skimage.io as skio
+from skimage.transform import resize
 
 parser = argparse.ArgumentParser(
     description="Convert means/variances to text versions")
@@ -15,6 +16,10 @@ parser.add_argument('--sequence_time_end', type=int,
     help="Ending timestep of training/testing")
 parser.add_argument('--query_type',
     help="Query type")
+parser.add_argument('--xlen', type=int,
+    help="Width of input images")
+parser.add_argument('--ylen', type=int,
+    help="Height of input images")
 args = parser.parse_args()
 
 def save_img_txt():
@@ -23,6 +28,7 @@ def save_img_txt():
         img = skio.imread(os.path.join(args.data_dir, img_path))
         if len(img.shape) < 3:
             img = np.dstack((img, img, img))
+        img = resize(img, (args.ylen, args.xlen))
         data.append(img)
     data = np.array(data)
     data = data[args.sequence_time_start:args.sequence_time_end]
@@ -41,6 +47,7 @@ def get_tight_mean_var():
         img = skio.imread(os.path.join(args.data_dir, img_path)) 
         if len(img.shape) < 3:
             img = np.dstack((img, img, img))
+        img = resize(img, (args.ylen, args.xlen))
         data.append(img)
     data = np.array(data)
     data = data[args.sequence_time_start:args.sequence_time_end]

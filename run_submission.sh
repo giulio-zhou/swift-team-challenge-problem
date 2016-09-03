@@ -30,7 +30,7 @@ num_label_samples=$((xlen * ylen * test_time_steps * 20))
 
 # Make BLOG file, load images and means from pre-processing to Swift-readable text format
 python util/make_blog_file.py --input_name templates/bsub_offline_learn_param.blog --output_name swift/example/bsub_offline.blog --query_type offline_param -t $training_end_t --xlen $xlen --ylen $ylen
-python util/make_param_txt.py --input_dir . --data_dir $data_dir --sequence_time_start $training_start_t --sequence_time_end $training_end_t --query_type read_img_sequence
+python util/make_param_txt.py --input_dir . --data_dir $data_dir --sequence_time_start $training_start_t --sequence_time_end $training_end_t --query_type read_img_sequence --xlen $xlen --ylen $ylen
 mv data_*.txt swift/src
 mv means.txt swift/src/means_init.txt
 rm vars.txt
@@ -49,7 +49,7 @@ cd ../../
 
 # Parse means/covariances from output file and prepare parameters for Phase Two
 python util/parse_output_file.py --input_file bsub_output.txt --output_dir mean_var_temp --query_type mean_var_offline --xlen $xlen --ylen $ylen
-python util/make_param_txt.py --input_dir mean_var_temp --data_dir $data_dir --sequence_time_start $test_start_t --sequence_time_end $test_end_t --query_type read_test_data
+python util/make_param_txt.py --input_dir mean_var_temp --data_dir $data_dir --sequence_time_start $test_start_t --sequence_time_end $test_end_t --query_type read_test_data --xlen $xlen --ylen $ylen
 cp mean_var_temp/means.txt mean_var_temp/vars.txt swift/src/
 mv mean_var_temp/data_*.txt swift/src
 
