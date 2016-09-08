@@ -14,3 +14,8 @@ To install the armadillo, BLOG and Python dependencies, run the setup script.
 To run an end-to-end BLOG example, execute the run_experiment script.
     ./run_experiment.sh [data directory] [xlen] [ylen] [training timestep start] [training timestep end] \
                         [test timestep start] [test timestep end] [output directory] [ground truth image directory]
+To run the entire Stuttgart example, execute the run_stuttgart_example script.
+    ./run_stuttgart_example.sh [directory to store data]
+    NOTE: If you would like to run the example in the background (perhaps via nohup), make sure to run the 
+          setup script first; failing to do so will cause the program to skip all of the setup steps and 
+          create other issues along the way as well.
