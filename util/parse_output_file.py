@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 import re
 import skimage
@@ -111,12 +112,62 @@ def parse_offline_sequence():
         img = skimage.img_as_ubyte(imgs[i])
         skio.imsave(os.path.join(args.output_dir, '%d.png' % i), img)
 
+def parse_offline_probs():
+    imgs = []
+    f = open(args.input_file, 'r')
+    state, x, y, timestep = None, None, None, -1
+    curr_val = {}
+    re_com = re.compile('Component\[([0-9]+)\]')
+    re_imx = re.compile('ImageX\[([0-9]+)\]')
+    re_imy = re.compile('ImageY\[([0-9]+)\]')
+    re_tim = re.compile('Time\[([0-9]+)\]')
+    for line in f.readlines():
+        contents = line.split()
+        if 'query' in line:
+            state = 'Query'
+            if len(curr_val) > 0:
+                curr_img = imgs[t]
+                if 'Component[2]' in curr_val:
+                    curr_img[y, x] = curr_val['Component[2]']
+                else:
+                    curr_img[y, x] = 0.0
+                # if (max([(curr_val[i], i) for i in curr_val])[1] == 'Component[2]'):
+                #     curr_img[y, x] = 1.0
+                # else:
+                #     curr_img[y, x] = 0.0
+            x = int(re_imx.findall(line)[0])
+            y = int(re_imy.findall(line)[0])
+            t = int(re_tim.findall(line)[0])
+            curr_val = {}
+            if (t > timestep):
+                imgs.append(np.zeros((args.ylen, args.xlen)))
+                timestep = t
+        elif 'loopend' in line:
+            if len(curr_val) > 0:
+                curr_img = imgs[t]
+                if (max([(curr_val[i], i) for i in curr_val])[1] == 'Component[2]'):
+                    curr_img[y, x] = 1.0
+                else:
+                    curr_img[y, x] = 0.0
+            curr_val = {}
+        elif state is None:
+            continue
+        else:
+            curr_val[contents[0]] = float(contents[2])
+
+    for i in range(len(imgs)):
+        plt.imshow(imgs[i])
+        plt.savefig(os.path.join(args.output_dir, '%d.png' % i))
+        # img = skimage.img_as_ubyte(imgs[i])
+        # skio.imsave(os.path.join(args.output_dir, '%d.png' % i), img)
+
 
 def main():
     if not os.path.isdir(args.output_dir):
         os.mkdir(args.output_dir)
     queries = {'mean_var_offline': parse_mean_var_offline,
-               'offline_sequence': parse_offline_sequence}
+               'offline_sequence': parse_offline_sequence,
+               'offline_probs': parse_offline_probs}
     if args.query_type in queries:
         queries[args.query_type]()
     else:
