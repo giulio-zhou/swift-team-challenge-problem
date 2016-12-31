@@ -34,6 +34,8 @@ def apply_background_subtractor(fgbg, img_filenames, imgpath_prefix):
         curr_img = resize(curr_img, (args.ylen, args.xlen, 3))
         curr_img = skimage.img_as_ubyte(curr_img)
         mask = fgbg.apply(curr_img, learningRate=0.01)
+        if np.sum(mask) == args.ylen * args.xlen * 255:
+            mask[:, :] = 0
         masks.append(mask)
     return masks
 
@@ -48,7 +50,7 @@ def main():
     if args.version == 1:
         fgbg = cv2.BackgroundSubtractorMOG()
     elif args.version == 2:
-        fgbg = cv2.BackgroundSubtractorMOG2()
+        fgbg = cv2.BackgroundSubtractorMOG2(history=20, varThreshold=10, bShadowDetection=False)
     elif args.version == 3:
         fgbg = cv2.BackgroundSubtractorGMG()
     else:
