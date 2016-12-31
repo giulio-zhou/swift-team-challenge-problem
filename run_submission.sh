@@ -21,11 +21,13 @@ declare -i training_end_t
 declare -i test_start_t
 declare -i test_end_t
 
-num_param_samples=$((xlen * ylen * 6 * 25))
+num_param_samples=$((xlen * ylen * 6 * 100))
 train_time_steps=$(( training_end_t - training_start_t ))
 test_time_steps=$(( test_end_t - test_start_t ))
 declare -i train_time_steps
 declare -i test_time_steps
+num_label_interval=$((xlen * ylen * test_time_steps / 4))
+num_label_burn_in=$((xlen * ylen * test_time_steps * 5))
 num_label_samples=$((xlen * ylen * test_time_steps * 20))
 
 # Make BLOG file, load images and means from pre-processing to Swift-readable text format
@@ -37,7 +39,7 @@ rm vars.txt
 
 # Run offline Metropolis-Hastings to get mean and covariance parameters for each pixel
 cd swift
-./swift -e MHSampler -n $((num_param_samples + 5)) --burn-in $num_param_samples -i example/bsub_offline.blog -o src/bsub_offline.cpp 
+./swift -e GibbsSampler -n $((num_param_samples + 5)) --burn-in $num_param_samples -i example/bsub_offline.blog -o src/bsub_offline.cpp 
 cd src
 g++ -Ofast -std=c++11 bsub_offline.cpp random/*.cpp -o bsub_offline -larmadillo
 ./bsub_offline > bsub_output.txt
@@ -58,7 +60,7 @@ mv mean_var_temp/data_*.txt swift/src
 # Make labeling scheme BLOG file 
 python util/make_blog_file.py --input_name templates/bsub_offline_label.blog --output_name swift/example/bsub_offline_label.blog --query_type offline_label -t $training_end_t --xlen $xlen --ylen $ylen
 cd swift
-./swift -e MHSampler -n $((num_label_samples + 5)) --burn-in $((num_label_samples)) -i example/bsub_offline_label.blog -o src/bsub_offline_label.cpp
+./swift -e GibbsSampler -n $((num_label_samples)) --burn-in $((num_label_burn_in)) --interval $((num_label_interval)) -i example/bsub_offline_label.blog -o src/bsub_offline_label.cpp
 cd src
 g++ -Ofast -std=c++11 bsub_offline_label.cpp random/*.cpp -o bsub_offline_label -larmadillo
 ./bsub_offline_label > bsub_output_label.txt
@@ -75,7 +77,7 @@ mkdir $output_dir/blog
 mv $output_dir/*.png $output_dir/blog
 
 # Phase Three: Evaluation
-python evaluation/run_opencv.py -v 1 -f $data_dir -o $output_dir/open_cv
+python evaluation/run_opencv.py -v 1 -f $data_dir -o $output_dir/open_cv -s $test_start_t -e $test_end_t -x $xlen -y $ylen
 python evaluation/labeled_image_to_mat.py -f $ground_truth_dir -o $output_dir/gt_mat -b 0 -x $xlen -y $ylen -s $test_start_t -e $test_end_t
 python evaluation/labeled_image_to_mat.py -f $output_dir/blog -o $output_dir/blog_mat -b 0 -x $xlen -y $ylen -s $test_start_t -e $test_end_t
 python evaluation/labeled_image_to_mat.py -f $output_dir/open_cv -o $output_dir/opencv_mat -b 0 -x $xlen -y $ylen -s $test_start_t -e $test_end_t

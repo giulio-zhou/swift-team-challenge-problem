@@ -2,8 +2,10 @@ import argparse
 import cv2
 import numpy as np
 import os
+import skimage
 import skimage.io as skio
 import sys
+from skimage.transform import resize
 
 parser = argparse.ArgumentParser(
     description="Evaluate image sequence using OpenCV benchmarks")
@@ -14,6 +16,14 @@ parser.add_argument('-f', '--filepath',
 parser.add_argument('-o', '--output',
                     help="Path to output directory for predictions",
                     default="opencv_output")
+parser.add_argument('-x', '--xlen', type=int,
+                    help="X dimension of video sequence")
+parser.add_argument('-y', '--ylen', type=int,
+                    help="Y dimension of video sequence")
+parser.add_argument('-s', '--start', type=int,
+                    help="Starting index of video sequence")
+parser.add_argument('-e', '--end', type=int,
+                    help="Ending index of video sequence")
 args = parser.parse_args()
 
 
@@ -21,7 +31,9 @@ def apply_background_subtractor(fgbg, img_filenames, imgpath_prefix):
     masks = []
     for img in img_filenames: 
         curr_img = skio.imread(imgpath_prefix + img)
-        mask = fgbg.apply(curr_img)
+        curr_img = resize(curr_img, (args.ylen, args.xlen, 3))
+        curr_img = skimage.img_as_ubyte(curr_img)
+        mask = fgbg.apply(curr_img, learningRate=0.01)
         masks.append(mask)
     return masks
 
@@ -50,7 +62,10 @@ def main():
     # Read images from specified directory
     filenames = os.listdir(args.filepath)
     filenames = [x for x in filenames if x[0] != '.']
-    masks = apply_background_subtractor(fgbg, filenames, args.filepath) 
+    # Sort filenames and only keep the proper ones
+    filenames = sorted(filenames, key=lambda f: int(f.split('.')[0]))
+    filenames = filenames[args.start:args.end]
+    masks = apply_background_subtractor(fgbg, filenames, args.filepath)
     save_images(args.output + '/{}.png', masks)
 
 if __name__ == '__main__':

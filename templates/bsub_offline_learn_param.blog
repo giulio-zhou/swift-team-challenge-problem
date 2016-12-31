@@ -26,9 +26,9 @@ random Component AssociatedComponent(ImageX x, ImageY y, Time t) ~
     if (t == Time[0]) then Discrete([1.0, 1.0, 1.0])
     else
         case AssociatedComponent(x, y, prevTime(t)) in {
-            Component[0] -> Discrete([0.6, 0.2, 0.2]),
-            Component[1] -> Discrete([0.2, 0.6, 0.2]),
-            Component[2] -> Discrete([0.2, 0.2, 0.6])
+            Component[0] -> Discrete([0.8, 0.1, 0.1]),
+            Component[1] -> Discrete([0.1, 0.8, 0.1]),
+            Component[2] -> Discrete([0.1, 0.1, 0.8])
         }
 ;
 
@@ -36,23 +36,115 @@ random Component AssociatedComponent(ImageX x, ImageY y, Time t) ~
 random Boolean NeighborRight(ImageX x, ImageY y, Time t) ~
     if (AssociatedComponent(x, y, t) == Component[2]) then
         if (AssociatedComponent(nextX(x), y, t) == Component[2]) then BooleanDistrib(0.9)
-        else BooleanDistrib(0.01)
+        else BooleanDistrib(0.1)
     else
         if (AssociatedComponent(nextX(x), y, t) != Component[2]) then BooleanDistrib(0.9)
-        else BooleanDistrib(0.01)
+        else BooleanDistrib(0.1)
 ;
 
 random Boolean NeighborDown(ImageX x, ImageY y, Time t) ~
     if (AssociatedComponent(x, y, t) == Component[2]) then
         if (AssociatedComponent(x, nextY(y), t) == Component[2]) then BooleanDistrib(0.9)
-        else BooleanDistrib(0.01)
+        else BooleanDistrib(0.1)
     else
         if (AssociatedComponent(x, nextY(y), t) != Component[2]) then BooleanDistrib(0.9)
-        else BooleanDistrib(0.01)
+        else BooleanDistrib(0.1)
+;
+
+random Boolean NeighborLeftDiag(ImageX x, ImageY y, Time t) ~
+    if (AssociatedComponent(x, y, t) == Component[2]) then
+        if (AssociatedComponent(prevX(x), nextY(y), t) == Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.1)
+    else
+        if (AssociatedComponent(prevX(x), nextY(y), t) != Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.1)
+;
+
+random Boolean NeighborRightDiag(ImageX x, ImageY y, Time t) ~
+    if (AssociatedComponent(x, y, t) == Component[2]) then
+        if (AssociatedComponent(nextX(x), nextY(y), t) == Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.1)
+    else
+        if (AssociatedComponent(nextX(x), nextY(y), t) != Component[2]) then BooleanDistrib(0.9)
+        else BooleanDistrib(0.1)
+;
+
+random Boolean ColorNeighborRight(ImageX x, ImageY y, Time t) ~
+    if ((AssociatedComponent(x, y, t) == Component[2] & AssociatedComponent(nextX(x), y, t) == Component[2]) | 
+        (AssociatedComponent(x, y, t) != Component[2] & AssociatedComponent(nextX(x), y, t) != Component[2])) then
+        BooleanDistrib(1 / (1 + exp(-pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] - dataR[toInt(t)][toInt(y) * xdim + (toInt(x) + 1)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] - dataG[toInt(t)][toInt(y) * xdim + (toInt(x) + 1)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] - dataB[toInt(t)][toInt(y) * xdim + (toInt(x) + 1)]
+        ))))
+    else    
+         BooleanDistrib(1 / (1 + exp(pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] - dataR[toInt(t)][toInt(y) * xdim + (toInt(x) + 1)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] - dataG[toInt(t)][toInt(y) * xdim + (toInt(x) + 1)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] - dataB[toInt(t)][toInt(y) * xdim + (toInt(x) + 1)]
+        ))))
+;
+
+random Boolean ColorNeighborDown(ImageX x, ImageY y, Time t) ~
+    if ((AssociatedComponent(x, y, t) == Component[2] & AssociatedComponent(x, nextY(y), t) == Component[2]) | 
+        (AssociatedComponent(x, y, t) != Component[2] & AssociatedComponent(x, nextY(y), t) != Component[2])) then
+        BooleanDistrib(1 / (1 + exp(-pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] - dataR[toInt(t)][(toInt(y) + 1) * xdim + toInt(x)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] - dataG[toInt(t)][(toInt(y) + 1) * xdim + toInt(x)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] - dataB[toInt(t)][(toInt(y) + 1) * xdim + toInt(x)]
+        ))))
+    else 
+         BooleanDistrib(1 / (1 + exp(pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] - dataR[toInt(t)][(toInt(y) + 1) * xdim + toInt(x)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] - dataG[toInt(t)][(toInt(y) + 1) * xdim + toInt(x)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] - dataB[toInt(t)][(toInt(y) + 1) * xdim + toInt(x)]
+        ))))
+;
+
+random Boolean ColorNeighborLeftDiag(ImageX x, ImageY y, Time t) ~
+    if ((AssociatedComponent(x, y, t) == Component[2] & AssociatedComponent(prevX(x), nextY(y), t) == Component[2]) | 
+        (AssociatedComponent(x, y, t) != Component[2] & AssociatedComponent(prevX(x), nextY(y), t) != Component[2])) then
+        BooleanDistrib(1 / (1 + exp(-pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataR[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) - 1)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataG[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) - 1)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataB[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) - 1)]
+        ))))
+    else
+         BooleanDistrib(1 / (1 + exp(pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataR[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) - 1)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataG[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) - 1)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataB[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) - 1)]
+        ))))
+;
+
+random Boolean ColorNeighborRightDiag(ImageX x, ImageY y, Time t) ~
+    if ((AssociatedComponent(x, y, t) == Component[2] & AssociatedComponent(nextX(x), nextY(y), t) == Component[2]) | 
+        (AssociatedComponent(x, y, t) != Component[2] & AssociatedComponent(nextX(x), nextY(y), t) != Component[2])) then
+        BooleanDistrib(1 / (1 + exp(-pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataR[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) + 1)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataG[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) + 1)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataB[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) + 1)]
+        ))))
+    else
+         BooleanDistrib(1 / (1 + exp(pixelSquaredDistance(dataR[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataR[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) + 1)],
+                                                          dataG[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataG[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) + 1)],
+                                                          dataB[toInt(t)][toInt(y) * xdim + toInt(x)] -
+                                                          dataB[toInt(t)][(toInt(y) + 1) * xdim + (toInt(x) + 1)]
+        ))))
+;
+
+fixed Real pixelSquaredDistance(Real delta_r, Real delta_g, Real delta_b) =
+    sqrt(delta_r^2 + delta_g^2 + delta_b^2) / 100.0
 ;
 
 fixed ImageX nextX(ImageX x) = toInt(x) + 1;
 fixed ImageY nextY(ImageY y) = toInt(y) + 1;
+fixed ImageX prevX(ImageX x) = toInt(x) - 1;
+fixed ImageY prevY(ImageY y) = toInt(y) - 1;
 
 fixed Time prevTime(Time t) =
     if (t == Time[0]) then toInt(t)
@@ -66,5 +158,11 @@ random RealMatrix Intensity(ImageX x, ImageY y, Time t) ~
 obs Intensity(x, y, t) = [dataR[toInt(t)][toInt(y) * xdim + toInt(x)]; dataG[toInt(t)][toInt(y) * xdim + toInt(x)]; dataB[toInt(t)][toInt(y) * xdim + toInt(x)]] for ImageX x, ImageY y, Time t;
 obs NeighborRight(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(x) < xdim - 1;
 obs NeighborDown(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(y) < ydim - 1;
+obs NeighborLeftDiag(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(y) < ydim - 1 & toInt(x) > 0;
+obs NeighborRightDiag(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(y) < ydim - 1 & toInt(x) < xdim - 1;
+obs ColorNeighborRight(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(x) < xdim - 1;
+obs ColorNeighborDown(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(y) < ydim - 1;
+obs ColorNeighborLeftDiag(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(y) < ydim - 1 & toInt(x) > 0;
+obs ColorNeighborRightDiag(x, y, t) = true for ImageX x, ImageY y, Time t : toInt(y) < ydim - 1 & toInt(x) < xdim - 1;
 query Mean(c, x, y) for Component c, ImageX x, ImageY y;
 query Variance(c, x, y) for Component c, ImageX x, ImageY y;
