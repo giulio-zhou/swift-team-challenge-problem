@@ -30,7 +30,7 @@ args = parser.parse_args()
 def apply_background_subtractor(fgbg, img_filenames, imgpath_prefix):
     masks = []
     for img in img_filenames: 
-        curr_img = skio.imread(imgpath_prefix + img)
+        curr_img = skio.imread(os.path.join(imgpath_prefix, img))
         curr_img = resize(curr_img, (args.ylen, args.xlen, 3))
         curr_img = skimage.img_as_ubyte(curr_img)
         mask = fgbg.apply(curr_img, learningRate=0.01)
